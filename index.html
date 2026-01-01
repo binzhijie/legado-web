@@ -1,96 +1,418 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>开源阅读 - 个人资源站</title>
-    <style>
-        body {
-            font-family: 'Microsoft YaHei', sans-serif;
-            padding: 0;
-            color: #333;
-            background-color: #f5f5f5;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        h1 {
-            color: #2c3e50;
-        }
-        .file-list {
-            background: white;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            padding: 20px;
-            margin-bottom: 10px;
-        }
-        .file-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid #eee;
-        }
-        .file-item:last-child {
-            border-bottom: none;
-        }
-        .download-btn {
-            background-color: #3498db;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-            text-decoration: none;
-        }
-        .download-btn:hover {
-            background-color: #2980b9;
-        }
-    </style>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>开源阅读 - 个人资源站</title>
+  <link rel="icon" href="/icon.ico" sizes="16x16" />
+  <style>
+    :root {
+      /* 抹茶绿主题配色 */
+      --primary-color: #88C9A1;        /* 主色调 - 抹茶绿 */
+      --primary-dark: #6CA88B;         /* 深抹茶绿 */
+      --primary-light: #A8D8B9;        /* 浅抹茶绿 */
+      --accent-color: #5A9E7F;         /* 强调色 */
+      --background-light: #F8FDFB;     /* 浅背景 */
+      --background-card: #FFFFFF;      /* 卡片背景 */
+      --text-primary: #333333;         /* 主要文字 */
+      --text-secondary: #5A6B62;       /* 次要文字 */
+      --shadow-color: rgba(88, 158, 127, 0.15);
+      --border-radius: 12px;
+      --transition: all 0.3s ease;
+      --spacing-sm: 0.5rem;
+      --spacing-md: 1rem;
+      --spacing-lg: 2rem;
+      --spacing-xl: 4rem;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      background: linear-gradient(135deg, var(--background-light) 0%, #E8F5F1 100%);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: var(--spacing-lg);
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, var(--primary-light) 0%, transparent 70%);
+      z-index: -1;
+      opacity: 0.08;
+    }
+
+    .container {
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-lg);
+    }
+
+    /* 头部样式 */
+    .header {
+      text-align: center;
+      padding: var(--spacing-lg) 0;
+      position: relative;
+      width: 100%;
+    }
+
+    .header::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 4px;
+      background: var(--primary-color);
+      border-radius: 2px;
+    }
+
+    h1 {
+      font-size: 2.8rem;
+      font-weight: 700;
+      margin-bottom: var(--spacing-md);
+      background: linear-gradient(45deg, var(--primary-dark), var(--accent-color));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 2px 4px rgba(88, 158, 127, 0.1);
+      letter-spacing: 1px;
+    }
+
+    .subtitle {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+      margin-top: var(--spacing-sm);
+      font-weight: 300;
+    }
+
+    /* 卡片样式 */
+    .file-list {
+      background: var(--background-card);
+      border-radius: var(--border-radius);
+      box-shadow: 0 8px 30px var(--shadow-color);
+      padding: var(--spacing-lg);
+      transition: var(--transition);
+      border: 1px solid rgba(136, 201, 161, 0.2);
+      backdrop-filter: blur(10px);
+    }
+
+    .file-list:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 40px var(--shadow-color);
+      border-color: var(--primary-color);
+    }
+
+    .file-list h2 {
+      font-size: 1.6rem;
+      font-weight: 600;
+      color: var(--primary-dark);
+      margin-bottom: var(--spacing-lg);
+      padding-bottom: var(--spacing-md);
+      border-bottom: 2px solid var(--primary-light);
+    }
+
+    /* 文件项样式 */
+    .file-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--spacing-md);
+      margin-bottom: var(--spacing-sm);
+      border-radius: 8px;
+      background: rgba(248, 253, 251, 0.5);
+      transition: var(--transition);
+      border: 1px solid rgba(136, 201, 161, 0.1);
+    }
+
+    .file-item:hover {
+      background: rgba(136, 201, 161, 0.08);
+      border-color: var(--primary-color);
+      transform: translateX(5px);
+    }
+
+    .file-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .file-name {
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: var(--primary-dark);
+      flex-grow: 1;
+    }
+
+    .file-desc {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-top: 0.25rem;
+      display: block;
+    }
+
+    /* 按钮样式 */
+    .download-btn, .jump-btn {
+      padding: 0.6rem 1.2rem;
+      border-radius: 8px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.95rem;
+    }
+
+    .download-btn {
+      background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+      color: white;
+      box-shadow: 0 4px 15px rgba(136, 201, 161, 0.3);
+    }
+
+    .download-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(136, 201, 161, 0.4);
+      background: linear-gradient(45deg, var(--accent-color), var(--primary-dark));
+    }
+
+    .jump-btn {
+      background: linear-gradient(45deg, #6CA88B, #5A9E7F);
+      color: white;
+      box-shadow: 0 4px 15px rgba(108, 168, 139, 0.3);
+    }
+
+    .jump-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(108, 168, 139, 0.4);
+      background: linear-gradient(45deg, #5A9E7F, #4A8E6F);
+    }
+
+    /* 页脚样式 */
+    footer {
+      text-align: center;
+      padding: var(--spacing-md) 0;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-top: auto;
+      width: 100%;
+      border-top: 1px solid rgba(136, 201, 161, 0.2);
+      margin-top: var(--spacing-xl);
+    }
+
+    .copyright {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: var(--spacing-sm);
+    }
+
+    /* 响应式设计 */
+    @media (max-width: 768px) {
+      :root {
+        --spacing-lg: 1.5rem;
+      }
+      
+      h1 {
+        font-size: 2.2rem;
+      }
+      
+      .container {
+        padding: 0 var(--spacing-md);
+      }
+      
+      .file-list {
+        padding: var(--spacing-md);
+      }
+      
+      .file-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-sm);
+      }
+      
+      .file-actions {
+        width: 100%;
+        display: flex;
+        justify-content: flex-end;
+      }
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.8rem;
+      }
+      
+      .subtitle {
+        font-size: 1rem;
+      }
+      
+      .download-btn, .jump-btn {
+        width: 100%;
+        justify-content: center;
+      }
+      
+      .file-item {
+        padding: var(--spacing-sm);
+      }
+    }
+
+    /* 动画效果 */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .file-list {
+      animation: fadeIn 0.6s ease-out forwards;
+    }
+
+    .file-list:nth-child(1) { animation-delay: 0.1s; }
+    .file-list:nth-child(2) { animation-delay: 0.2s; }
+    .file-list:nth-child(3) { animation-delay: 0.3s; }
+  </style>
 </head>
-
 <body>
-    <div class="container">
-        <header>
-            <h1>开源阅读资源下载</h1>
-            <p>个人资源文件下载中心</p>
-        </header>
-
-        <div class="file-list">
-            <h1>开源阅读软件下载</h1>
-            <div class="file-item">
-                <span>legado_app_3.25.apk</span>
-                <a herf="https://github.com/gedoor/legado/releases/download/3.25/legado_app_3.25.apk" class="download-btn" download>下载</a>
-            </div>
-        </div>
-
-        <div class="file-list">
-            <h1>未分类文件仓库</h1>
-            <div class="file-item">
-                <span>点右边跳转</span>
-                <a href="auto_files/" class="download-btn">跳转</a>
-            </div>
-        </div>
-
-        <div class="file-list">
-            <h2>可用文件</h2>
-
-            <!-- 文件列表 -->
-            <div class="file-item">
-                <span>my.zip</span>
-                <a href="theme/my.zip" class="download-btn" download>下载</a>
-            </div>
-
-            <div class="file-item">
-                <span>my.json</span>
-                <a href="theme/my.json" class="download-btn" download>下载</a>
-            </div>
-            <!-- 可以在这里添加更多文件 -->
-        </div>
+  <div class="container">
+    <div class="header">
+      <h1>📚 开源阅读资源下载</h1>
+      <p class="subtitle">个人资源文件下载中心</p>
     </div>
+
+    <div class="file-list">
+      <h2>📱 开源阅读软件下载</h2>
+      <div class="file-item">
+        <div>
+          <span class="file-name">legado_app_3.25.apk</span>
+          <span class="file-desc">最新版本开源阅读APP，支持多源阅读</span>
+        </div>
+        <a href="https://github.com/gedoor/legado/releases/download/3.25/legado_app_3.25.apk" class="download-btn" download>
+          <i class="fas fa-download"></i> 下载
+        </a>
+      </div>
+    </div>
+
+    <div class="file-list">
+      <h2>📁 未分类文件仓库</h2>
+      <div class="file-item">
+        <div>
+          <span class="file-name">auto_files/</span>
+          <span class="file-desc">其他自动整理的资源文件</span>
+        </div>
+        <a href="auto_files/" class="jump-btn">
+          <i class="fas fa-arrow-right"></i> 跳转
+        </a>
+      </div>
+    </div>
+
+    <div class="file-list">
+      <h2>🎨 主题配置文件</h2>
+      <div class="file-item">
+        <div>
+          <span class="file-name">my.zip</span>
+          <span class="file-desc">自定义主题配置包</span>
+        </div>
+        <a href="theme/my.zip" class="download-btn" download>
+          <i class="fas fa-download"></i> 下载
+        </a>
+      </div>
+      <div class="file-item">
+        <div>
+          <span class="file-name">my.json</span>
+          <span class="file-desc">主题配置JSON文件</span>
+        </div>
+        <a href="theme/my.json" class="download-btn" download>
+          <i class="fas fa-download"></i> 下载
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="copyright">
+      <span>BinZhijie &copy; 2026 | 抹茶绿主题设计</span>
+    </div>
+  </footer>
+
+  <script>
+    // 添加新文件的便捷函数（用于控制台）
+    window.addFile = function(section, name, desc, url, isDownload = true) {
+      const fileLists = document.querySelectorAll('.file-list');
+      let targetSection = null;
+      
+      fileLists.forEach(list => {
+        if (list.querySelector('h2').textContent.includes(section)) {
+          targetSection = list;
+        }
+      });
+      
+      if (!targetSection) {
+        // 创建新分类
+        const newSection = document.createElement('div');
+        newSection.className = 'file-list';
+        newSection.innerHTML = `
+          <h2>${section}</h2>
+        `;
+        document.querySelector('.container').appendChild(newSection);
+        targetSection = newSection;
+      }
+      
+      const fileItem = document.createElement('div');
+      fileItem.className = 'file-item';
+      fileItem.innerHTML = `
+        <div>
+          <span class="file-name">${name}</span>
+          <span class="file-desc">${desc}</span>
+        </div>
+        <a href="${url}" class="${isDownload ? 'download-btn' : 'jump-btn'}" ${isDownload ? 'download' : ''}>
+          <i class="fas fa-${isDownload ? 'download' : 'arrow-right'}"></i> ${isDownload ? '下载' : '跳转'}
+        </a>
+      `;
+      
+      targetSection.appendChild(fileItem);
+      
+      // 添加动画效果
+      fileItem.style.opacity = '0';
+      fileItem.style.transform = 'translateY(20px)';
+      setTimeout(() => {
+        fileItem.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+        fileItem.style.opacity = '1';
+        fileItem.style.transform = 'translateY(0)';
+      }, 10);
+    };
+
+    // 页面加载完成后执行
+    document.addEventListener('DOMContentLoaded', () => {
+      // 年份自动更新
+      const currentYear = new Date().getFullYear();
+      document.querySelector('.copyright span').innerHTML = 
+        `BinZhijie &copy; ${currentYear} | 抹茶绿主题设计`;
+      
+      // 添加示例文件
+      console.log('可用控制台命令：');
+      console.log('addFile("新分类", "文件名", "描述", "url", true/false)');
+    });
+  </script>
+  
+  <script charset="UTF-8" id="MXA_COLLECT" src="//mxana.tacool.com/sdk.js"></script>
+  <script>MXA.init({ id: "c2-nyNt249m", useHeatMap: true, useHash: true, useErrorLog: true })</script>
 </body>
 </html>

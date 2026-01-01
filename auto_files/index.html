@@ -5,6 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>文件下载中心</title>
   <style>
+    :root {
+      /* 抹茶绿主题配色 */
+      --primary-color: #88C9A1;        /* 主色调 - 抹茶绿 */
+      --primary-dark: #6CA88B;         /* 深抹茶绿 */
+      --primary-light: #A8D8B9;        /* 浅抹茶绿 */
+      --accent-color: #5A9E7F;         /* 强调色 */
+      --background-light: #F8FDFB;     /* 浅背景 */
+      --background-card: #FFFFFF;      /* 卡片背景 */
+      --text-primary: #333333;         /* 主要文字 */
+      --text-secondary: #5A6B62;       /* 次要文字 */
+      --shadow-color: rgba(88, 158, 127, 0.15);
+      --border-radius: 12px;
+      --transition: all 0.3s ease;
+      --spacing-sm: 0.5rem;
+      --spacing-md: 1rem;
+      --spacing-lg: 2rem;
+      --spacing-xl: 4rem;
+    }
+
     * {
       margin: 0;
       padding: 0;
@@ -12,170 +31,281 @@
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-      background: linear-gradient(135deg, #f9fbfd 0%, #edf2f7 100%);
+      font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      background: linear-gradient(135deg, var(--background-light) 0%, #E8F5F1 100%);
+      color: var(--text-primary);
       min-height: 100vh;
-      padding: 50px 20px;
-      color: #2d3748;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: var(--spacing-lg);
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, var(--primary-light) 0%, transparent 70%);
+      z-index: -1;
+      opacity: 0.08;
     }
 
     .container {
-      max-width: 960px;
+      max-width: 1200px;
+      width: 100%;
       margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-lg);
+    }
+
+    /* 头部样式 */
+    .header {
+      text-align: center;
+      padding: var(--spacing-lg) 0;
+      position: relative;
+      width: 100%;
+    }
+
+    .header::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 4px;
+      background: var(--primary-color);
+      border-radius: 2px;
     }
 
     h1 {
-      text-align: center;
-      font-size: 2.3rem;
-      font-weight: 800;
-      margin-bottom: 30px;
-      color: #1a202c;
-      letter-spacing: -0.5px;
+      font-size: 2.8rem;
+      font-weight: 700;
+      margin-bottom: var(--spacing-md);
+      background: linear-gradient(45deg, var(--primary-dark), var(--accent-color));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 2px 4px rgba(88, 158, 127, 0.1);
+      letter-spacing: 1px;
     }
 
+    /* 搜索框样式 */
     .search-container {
-      margin-bottom: 25px;
-      text-align: center;
+      width: 100%;
+      max-width: 600px;
+      margin: var(--spacing-lg) auto;
     }
 
     #searchInput {
-      padding: 12px 20px;
-      width: 300px;
-      border: 2px solid #e2e8f0;
+      width: 100%;
+      padding: 0.8rem 1.5rem;
       border-radius: 50px;
+      border: 2px solid var(--primary-light);
+      background: var(--background-card);
+      color: var(--text-primary);
       font-size: 1rem;
-      transition: all 0.3s ease;
+      transition: var(--transition);
+      box-shadow: 0 4px 15px var(--shadow-color);
     }
 
     #searchInput:focus {
       outline: none;
-      border-color: #4361ee;
-      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+      border-color: var(--primary-color);
+      box-shadow: 0 4px 20px rgba(136, 201, 161, 0.3);
     }
 
+    /* 统计样式 */
     .stats {
       text-align: center;
-      margin-bottom: 25px;
+      margin-bottom: var(--spacing-lg);
       font-size: 1.1rem;
-      color: #4a5568;
+      color: var(--text-secondary);
     }
 
+    /* 文件网格 */
     .files-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 25px;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: var(--spacing-lg);
+      width: 100%;
     }
 
+    /* 文件卡片 */
     .file-card {
-      background: white;
-      border-radius: 16px;
-      padding: 24px;
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
-      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-      border: 1px solid rgba(0, 0, 0, 0.05);
+      background: var(--background-card);
+      border-radius: var(--border-radius);
+      box-shadow: 0 8px 30px var(--shadow-color);
+      padding: var(--spacing-lg);
+      transition: var(--transition);
+      border: 1px solid rgba(136, 201, 161, 0.2);
+      backdrop-filter: blur(10px);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
     }
 
     .file-card:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
-    }
-
-    .file-icon {
-      font-size: 2.5rem;
-      color: #4361ee;
-      margin-bottom: 15px;
+      transform: translateY(-5px);
+      box-shadow: 0 12px 40px var(--shadow-color);
+      border-color: var(--primary-color);
     }
 
     .file-name {
-      font-size: 1.2rem;
+      font-size: 1.3rem;
       font-weight: 700;
-      color: #1a73e8;
-      margin-bottom: 8px;
+      color: var(--primary-dark);
+      margin-bottom: var(--spacing-sm);
       word-break: break-all;
+      line-height: 1.4;
     }
 
     .file-info {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-top: 12px;
-      padding-top: 12px;
-      border-top: 1px dashed #e2e8f0;
+      margin-top: var(--spacing-md);
+      padding-top: var(--spacing-md);
+      border-top: 1px dashed rgba(136, 201, 161, 0.3);
     }
 
     .file-size {
-      font-size: 0.85rem;
-      color: #718096;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      background: rgba(136, 201, 161, 0.08);
+      padding: var(--spacing-sm) var(--spacing-md);
+      border-radius: 6px;
     }
 
     .download-btn {
-      background: linear-gradient(45deg, #4361ee, #3a0ca3);
-      color: white;
-      border: none;
-      padding: 6px 15px;
+      padding: 0.6rem 1.2rem;
       border-radius: 8px;
-      cursor: pointer;
+      border: none;
+      background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+      color: white;
       font-weight: 600;
-      transition: all 0.2s;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: 0 4px 15px rgba(136, 201, 161, 0.3);
     }
 
     .download-btn:hover {
-      transform: scale(1.05);
+      transform: translateY(-2px) scale(1.05);
+      box-shadow: 0 6px 20px rgba(136, 201, 161, 0.4);
+      background: linear-gradient(45deg, var(--accent-color), var(--primary-dark));
     }
 
+    /* 空状态 */
     .empty-state {
       grid-column: 1 / -1;
       text-align: center;
-      padding: 60px 20px;
-    }
-
-    .empty-state i {
-      font-size: 4rem;
-      color: #a0aec0;
-      margin-bottom: 20px;
+      padding: 4rem 2rem;
     }
 
     .empty-state p {
-      font-size: 1.2rem;
-      color: #718096;
-    }
-
-    .loading {
-      text-align: center;
-      padding: 40px;
-      grid-column: 1 / -1;
+      color: var(--text-secondary);
       font-size: 1.1rem;
-      color: #4a5568;
+      margin-top: 1rem;
     }
 
+    /* 加载状态 */
+    .loading {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 2rem;
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+    }
+
+    /* 页脚样式 */
     footer {
       text-align: center;
-      padding: 20px;
-      color: #718096;
-      font-size: 0.95rem;
-      margin-top: 30px;
-      border-top: 1px solid #e2e8f0;
+      padding: var(--spacing-md) 0;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-top: auto;
+      width: 100%;
+      border-top: 1px solid rgba(136, 201, 161, 0.2);
+      margin-top: var(--spacing-xl);
     }
 
+    .copyright {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: var(--spacing-sm);
+    }
+
+    /* 响应式设计 */
     @media (max-width: 768px) {
+      :root {
+        --spacing-lg: 1.5rem;
+      }
+      
+      h1 {
+        font-size: 2.2rem;
+      }
+      
+      .files-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      }
+      
+      .search-container {
+        padding: 0 var(--spacing-sm);
+      }
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.8rem;
+      }
+      
       .files-grid {
         grid-template-columns: 1fr;
       }
       
-      #searchInput {
-        width: 100%;
-        max-width: 400px;
+      .file-name {
+        font-size: 1.1rem;
+      }
+      
+      .download-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
       }
     }
+
+    /* 动画效果 */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .file-card {
+      animation: fadeIn 0.6s ease-out forwards;
+    }
+
+    .file-card:nth-child(1) { animation-delay: 0.1s; }
+    .file-card:nth-child(2) { animation-delay: 0.2s; }
+    .file-card:nth-child(3) { animation-delay: 0.3s; }
+    .file-card:nth-child(4) { animation-delay: 0.4s; }
+    .file-card:nth-child(5) { animation-delay: 0.5s; }
+    .file-card:nth-child(6) { animation-delay: 0.6s; }
   </style>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
   <div class="container">
-    <h1><i class="fas fa-folder-download"></i> 文件下载中心</h1>
-    
+    <div class="header">
+      <h1>📁 文件下载中心</h1>
+    </div>
+
     <div class="search-container">
-      <input type="text" id="searchInput" placeholder="搜索文件...">
+      <input type="text" id="searchInput" placeholder="🔍 搜索文件名称...">
     </div>
     
     <div class="stats">
@@ -184,14 +314,14 @@
     
     <div class="files-grid" id="filesContainer">
       <div class="loading">
-        <i class="fas fa-spinner fa-spin"></i> 正在获取文件列表...
+        正在获取文件列表...
       </div>
     </div>
   </div>
 
   <footer>
-    <div class="container">
-      BinZhijie &copy; <span id="currentYear"></span> | GitHub 文件下载中心
+    <div class="copyright">
+      <span>BinZhijie &copy; <span id="currentYear"></span> | GitHub 文件下载中心</span>
     </div>
   </footer>
 
@@ -203,34 +333,6 @@
     const GITHUB_REPO = 'binzhijie/legado-web'; // 替换为你的 GitHub 仓库
     const GITHUB_BRANCH = 'main'; // 或 'master'
     const GITHUB_PATH = 'auto_files/files'; // 要显示的目录路径
-
-    // 文件类型图标映射
-    const fileTypeIcons = {
-      'pdf': 'far fa-file-pdf',
-      'doc': 'far fa-file-word',
-      'docx': 'far fa-file-word',
-      'xls': 'far fa-file-excel',
-      'xlsx': 'far fa-file-excel',
-      'ppt': 'far fa-file-powerpoint',
-      'pptx': 'far fa-file-powerpoint',
-      'txt': 'far fa-file-alt',
-      'zip': 'far fa-file-archive',
-      'rar': 'far fa-file-archive',
-      '7z': 'far fa-file-archive',
-      'jpg': 'far fa-file-image',
-      'jpeg': 'far fa-file-image',
-      'png': 'far fa-file-image',
-      'gif': 'far fa-file-image',
-      'mp4': 'far fa-file-video',
-      'avi': 'far fa-file-video',
-      'mp3': 'far fa-file-audio',
-      'wav': 'far fa-file-audio',
-      'html': 'fab fa-html5',
-      'css': 'fab fa-css3-alt',
-      'js': 'fab fa-js',
-      'json': 'fas fa-file-code',
-      'default': 'far fa-file'
-    };
 
     // 从 GitHub API 获取文件列表
     async function fetchGitHubFiles() {
@@ -258,8 +360,7 @@
             name: file.name,
             path: file.download_url,
             size: `${sizeInKB} KB`,
-            type: fileExtension,
-            icon: fileTypeIcons[fileExtension] || fileTypeIcons.default
+            type: fileExtension
           };
         });
       } catch (error) {
@@ -283,9 +384,8 @@
       if (filteredFiles.length === 0) {
         container.innerHTML = `
           <div class="empty-state">
-            <i class="fas fa-folder-open"></i>
             <p>没有找到匹配的文件</p>
-            <p style="margin-top: 10px; font-size: 0.95rem; color: #a0aec0">
+            <p style="margin-top: 0.5rem; font-size: 0.9rem; color: var(--text-secondary)">
               请尝试调整搜索关键词
             </p>
           </div>
@@ -294,18 +394,17 @@
       }
       
       container.innerHTML = '';
-      filteredFiles.forEach(file => {
+      filteredFiles.forEach((file, index) => {
         const card = document.createElement('div');
         card.className = 'file-card';
+        card.style.animationDelay = `${index * 0.1}s`;
+        
         card.innerHTML = `
-          <div class="file-icon">
-            <i class="${file.icon}"></i>
-          </div>
           <div class="file-name">${escapeHtml(file.name)}</div>
           <div class="file-info">
             <span class="file-size">${file.size}</span>
             <button class="download-btn" onclick="downloadFile('${file.path}', '${escapeHtml(file.name)}')">
-              <i class="fas fa-download"></i> 下载
+              下载
             </button>
           </div>
         `;
@@ -342,19 +441,21 @@
       });
     }
 
-    // 初始化
-    document.addEventListener('DOMContentLoaded', () => {
-      // 搜索功能
-      const searchInput = document.getElementById('searchInput');
-      searchInput.addEventListener('input', (e) => {
-        fetchGitHubFiles().then(files => {
-          renderFiles(files, e.target.value);
-        });
+    // 搜索功能
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      fetchGitHubFiles().then(files => {
+        renderFiles(files, e.target.value);
       });
-      
+    });
+
+    // 页面加载完成后初始化
+    document.addEventListener('DOMContentLoaded', () => {
       // 首次加载
       autoRefresh();
     });
   </script>
+  
+  <script charset="UTF-8" id="MXA_COLLECT" src="//mxana.tacool.com/sdk.js"></script>
+  <script>MXA.init({ id: "c2-nyNt249m", useHeatMap: true, useHash: true, useErrorLog: true })</script>
 </body>
 </html>

@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>文件下载中心</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      background: linear-gradient(135deg, #f9fbfd 0%, #edf2f7 100%);
+      min-height: 100vh;
+      padding: 50px 20px;
+      color: #2d3748;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2.3rem;
+      font-weight: 800;
+      margin-bottom: 30px;
+      color: #1a202c;
+      letter-spacing: -0.5px;
+    }
+
+    .search-container {
+      margin-bottom: 25px;
+      text-align: center;
+    }
+
+    #searchInput {
+      padding: 12px 20px;
+      width: 300px;
+      border: 2px solid #e2e8f0;
+      border-radius: 50px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    #searchInput:focus {
+      outline: none;
+      border-color: #4361ee;
+      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+    }
+
+    .stats {
+      text-align: center;
+      margin-bottom: 25px;
+      font-size: 1.1rem;
+      color: #4a5568;
+    }
+
+    .files-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 25px;
+    }
+
+    .file-card {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .file-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+    }
+
+    .file-icon {
+      font-size: 2.5rem;
+      color: #4361ee;
+      margin-bottom: 15px;
+    }
+
+    .file-name {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #1a73e8;
+      margin-bottom: 8px;
+      word-break: break-all;
+    }
+
+    .file-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px dashed #e2e8f0;
+    }
+
+    .file-size {
+      font-size: 0.85rem;
+      color: #718096;
+    }
+
+    .download-btn {
+      background: linear-gradient(45deg, #4361ee, #3a0ca3);
+      color: white;
+      border: none;
+      padding: 6px 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .download-btn:hover {
+      transform: scale(1.05);
+    }
+
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 60px 20px;
+    }
+
+    .empty-state i {
+      font-size: 4rem;
+      color: #a0aec0;
+      margin-bottom: 20px;
+    }
+
+    .empty-state p {
+      font-size: 1.2rem;
+      color: #718096;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      grid-column: 1 / -1;
+      font-size: 1.1rem;
+      color: #4a5568;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      color: #718096;
+      font-size: 0.95rem;
+      margin-top: 30px;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    @media (max-width: 768px) {
+      .files-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      #searchInput {
+        width: 100%;
+        max-width: 400px;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <div class="container">
+    <h1><i class="fas fa-folder-download"></i> 文件下载中心</h1>
+    
+    <div class="search-container">
+      <input type="text" id="searchInput" placeholder="搜索文件...">
+    </div>
+    
+    <div class="stats">
+      <span id="fileCount">加载中...</span>
+    </div>
+    
+    <div class="files-grid" id="filesContainer">
+      <div class="loading">
+        <i class="fas fa-spinner fa-spin"></i> 正在获取文件列表...
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="container">
+      BinZhijie &copy; <span id="currentYear"></span> | GitHub 文件下载中心
+    </div>
+  </footer>
+
+  <script>
+    // 设置当前年份
+    document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+    // GitHub API 配置
+    const GITHUB_REPO = 'binzhijie/legado-web'; // 替换为你的 GitHub 仓库
+    const GITHUB_BRANCH = 'main'; // 或 'master'
+    const GITHUB_PATH = 'auto_files/files'; // 要显示的目录路径
+
+    // 文件类型图标映射
+    const fileTypeIcons = {
+      'pdf': 'far fa-file-pdf',
+      'doc': 'far fa-file-word',
+      'docx': 'far fa-file-word',
+      'xls': 'far fa-file-excel',
+      'xlsx': 'far fa-file-excel',
+      'ppt': 'far fa-file-powerpoint',
+      'pptx': 'far fa-file-powerpoint',
+      'txt': 'far fa-file-alt',
+      'zip': 'far fa-file-archive',
+      'rar': 'far fa-file-archive',
+      '7z': 'far fa-file-archive',
+      'jpg': 'far fa-file-image',
+      'jpeg': 'far fa-file-image',
+      'png': 'far fa-file-image',
+      'gif': 'far fa-file-image',
+      'mp4': 'far fa-file-video',
+      'avi': 'far fa-file-video',
+      'mp3': 'far fa-file-audio',
+      'wav': 'far fa-file-audio',
+      'html': 'fab fa-html5',
+      'css': 'fab fa-css3-alt',
+      'js': 'fab fa-js',
+      'json': 'fas fa-file-code',
+      'default': 'far fa-file'
+    };
+
+    // 从 GitHub API 获取文件列表
+    async function fetchGitHubFiles() {
+      try {
+        const apiUrl = `https://api.github.com/repos/${GITHUB_REPO}/contents/${GITHUB_PATH}?ref=${GITHUB_BRANCH}`;
+        
+        const response = await fetch(apiUrl, {
+          headers: {
+            'Accept': 'application/vnd.github.v3+json'
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`GitHub API 错误: ${response.status}`);
+        }
+        
+        const files = await response.json();
+        
+        // 过滤只保留文件（排除目录）
+        return files.filter(file => file.type === 'file').map(file => {
+          const fileExtension = file.name.split('.').pop().toLowerCase();
+          const sizeInKB = (file.size / 1024).toFixed(1);
+          
+          return {
+            name: file.name,
+            path: file.download_url,
+            size: `${sizeInKB} KB`,
+            type: fileExtension,
+            icon: fileTypeIcons[fileExtension] || fileTypeIcons.default
+          };
+        });
+      } catch (error) {
+        console.error('获取 GitHub 文件列表失败:', error);
+        return [];
+      }
+    }
+
+    // 渲染文件列表
+    function renderFiles(files, searchTerm = '') {
+      const container = document.getElementById('filesContainer');
+      const fileCount = document.getElementById('fileCount');
+      
+      // 过滤文件
+      const filteredFiles = files.filter(file => 
+        file.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      
+      fileCount.textContent = `共找到 ${filteredFiles.length} 个文件`;
+      
+      if (filteredFiles.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-folder-open"></i>
+            <p>没有找到匹配的文件</p>
+            <p style="margin-top: 10px; font-size: 0.95rem; color: #a0aec0">
+              请尝试调整搜索关键词
+            </p>
+          </div>
+        `;
+        return;
+      }
+      
+      container.innerHTML = '';
+      filteredFiles.forEach(file => {
+        const card = document.createElement('div');
+        card.className = 'file-card';
+        card.innerHTML = `
+          <div class="file-icon">
+            <i class="${file.icon}"></i>
+          </div>
+          <div class="file-name">${escapeHtml(file.name)}</div>
+          <div class="file-info">
+            <span class="file-size">${file.size}</span>
+            <button class="download-btn" onclick="downloadFile('${file.path}', '${escapeHtml(file.name)}')">
+              <i class="fas fa-download"></i> 下载
+            </button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // 安全转义HTML
+    function escapeHtml(unsafe) {
+      return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    // 下载文件
+    function downloadFile(url, fileName) {
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // 自动刷新文件列表
+    function autoRefresh() {
+      fetchGitHubFiles().then(files => {
+        renderFiles(files, document.getElementById('searchInput').value);
+        // 每60秒自动刷新一次
+        setTimeout(autoRefresh, 60000);
+      });
+    }
+
+    // 初始化
+    document.addEventListener('DOMContentLoaded', () => {
+      // 搜索功能
+      const searchInput = document.getElementById('searchInput');
+      searchInput.addEventListener('input', (e) => {
+        fetchGitHubFiles().then(files => {
+          renderFiles(files, e.target.value);
+        });
+      });
+      
+      // 首次加载
+      autoRefresh();
+    });
+  </script>
+</body>
+</html>
