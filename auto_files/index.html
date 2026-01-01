@@ -191,7 +191,7 @@
 
   <footer>
     <div class="container">
-      BinZhijie &copy; <span id="currentYear"></span> | 自动文件检测下载中心
+      BinZhijie &copy; <span id="currentYear"></span> | GitHub 文件下载中心
     </div>
   </footer>
 
@@ -199,8 +199,10 @@
     // 设置当前年份
     document.getElementById('currentYear').textContent = new Date().getFullYear();
 
-    // 配置：设置要检测的目录路径
-    const DIRECTORY_PATH = 'files/'; // 修改为你的文件目录路径
+    // GitHub API 配置
+    const GITHUB_REPO = 'binzhijie/legado-web'; // 替换为你的 GitHub 仓库
+    const GITHUB_BRANCH = 'main'; // 或 'master'
+    const GITHUB_PATH = 'auto_files/files'; // 要显示的目录路径
 
     // 文件类型图标映射
     const fileTypeIcons = {
@@ -230,45 +232,38 @@
       'default': 'far fa-file'
     };
 
-    // 获取文件列表
-    async function fetchFileList() {
+    // 从 GitHub API 获取文件列表
+    async function fetchGitHubFiles() {
       try {
-        // 尝试获取目录列表（依赖服务器配置）
-        const response = await fetch(DIRECTORY_PATH);
-        const html = await response.text();
+        const apiUrl = `https://api.github.com/repos/${GITHUB_REPO}/contents/${GITHUB_PATH}?ref=${GITHUB_BRANCH}`;
         
-        // 使用DOM解析器提取文件链接
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
-        const links = doc.getElementsByTagName('a');
-        
-        const files = [];
-        for (let i = 0; i < links.length; i++) {
-          const href = links[i].getAttribute('href');
-          const text = links[i].textContent.trim();
-          
-          // 跳过父目录链接和非文件链接
-          if (href && !href.startsWith('?') && href !== '../' && href !== './' && !href.endsWith('/')) {
-            const fileName = text || href;
-            const fileExtension = fileName.split('.').pop().toLowerCase();
-            
-            // 计算文件大小（如果服务器提供了）
-            let fileSizeMatch = links[i].textContent.match(/\(([\d.]+[KMGT]B)\)/);
-            let fileSize = fileSizeMatch ? fileSizeMatch[1] : '未知大小';
-            
-            files.push({
-              name: fileName,
-              path: `${DIRECTORY_PATH}${href}`,
-              size: fileSize,
-              type: fileExtension,
-              icon: fileTypeIcons[fileExtension] || fileTypeIcons.default
-            });
+        const response = await fetch(apiUrl, {
+          headers: {
+            'Accept': 'application/vnd.github.v3+json'
           }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`GitHub API 错误: ${response.status}`);
         }
         
-        return files;
+        const files = await response.json();
+        
+        // 过滤只保留文件（排除目录）
+        return files.filter(file => file.type === 'file').map(file => {
+          const fileExtension = file.name.split('.').pop().toLowerCase();
+          const sizeInKB = (file.size / 1024).toFixed(1);
+          
+          return {
+            name: file.name,
+            path: file.download_url,
+            size: `${sizeInKB} KB`,
+            type: fileExtension,
+            icon: fileTypeIcons[fileExtension] || fileTypeIcons.default
+          };
+        });
       } catch (error) {
-        console.error('获取文件列表失败:', error);
+        console.error('获取 GitHub 文件列表失败:', error);
         return [];
       }
     }
@@ -340,10 +335,10 @@
 
     // 自动刷新文件列表
     function autoRefresh() {
-      fetchFileList().then(files => {
+      fetchGitHubFiles().then(files => {
         renderFiles(files, document.getElementById('searchInput').value);
-        // 每30秒自动刷新一次
-        setTimeout(autoRefresh, 30000);
+        // 每60秒自动刷新一次
+        setTimeout(autoRefresh, 60000);
       });
     }
 
@@ -352,7 +347,7 @@
       // 搜索功能
       const searchInput = document.getElementById('searchInput');
       searchInput.addEventListener('input', (e) => {
-        fetchFileList().then(files => {
+        fetchGitHubFiles().then(files => {
           renderFiles(files, e.target.value);
         });
       });
