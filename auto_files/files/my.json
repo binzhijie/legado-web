@@ -1,13 +1,15 @@
-{
-  "articleStyle": 0,
-  "customOrder": -10100995,
-  "enableJs": true,
-  "enabled": true,
-  "enabledCookieJar": false,
-  "lastUpdateTime": 0,
-  "loadWithBaseUrl": true,
-  "singleUrl": true,
-  "sourceIcon": "https://shuyuan.yiove.com/favicon.ico",
-  "sourceName": "我的",
-  "sourceUrl": "https://www.zhijie.qzz.io/legado-web/"
-}
+[
+    {
+    "articleStyle": 0,
+    "customOrder": -10100995,
+    "enableJs": true,
+    "enabled": true,
+    "enabledCookieJar": false,
+    "lastUpdateTime": 0,
+    "loadWithBaseUrl": true,
+    "singleUrl": true,
+    "sourceIcon": "https://shuyuan.yiove.com/favicon.ico",
+    "sourceName": "我的",
+    "sourceUrl": "https://www.zhijie.qzz.io/legado-web/"
+    }
+]
